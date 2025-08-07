@@ -1,3 +1,4 @@
 clingo
 fastapi
 uvicorn
+python-multipart

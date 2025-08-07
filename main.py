@@ -1,23 +1,28 @@
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, Query
 from fastapi.responses import PlainTextResponse
 import subprocess
+import os
 
 app = FastAPI()
 
-@app.post("/solve", response_class=PlainTextResponse)
-async def solve(file: UploadFile, extra_args: str = Form("")):
-    content = await file.read()
+@app.get("/solve", response_class=PlainTextResponse)
+def solve(
+    file: str = Query(..., description="Name of the .asp file without extension"),
+    extra_args: str = Query("", description="Optional extra arguments for clingo")
+):
+    file_path = os.path.join("simpleInstances", f"{file}.asp")
 
-    with open("input.asp", "wb") as f:
-        f.write(content)
+    if not os.path.isfile(file_path):
+        return PlainTextResponse(f"Error: File '{file_path}' not found.", status_code=404)
 
     try:
         result = subprocess.run(
-            ["clingo", "input.asp"] + extra_args.split(),
+            ["clingo", file_path] + extra_args.split(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=10,
         )
-        return result.stdout.decode() or result.stderr.decode()
+        output = result.stdout.decode() or result.stderr.decode()
+        return output
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error running clingo: {str(e)}"
