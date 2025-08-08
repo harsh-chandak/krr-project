@@ -1,12 +1,9 @@
 from fastapi import FastAPI, Query
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, HTMLResponse
 import os
 import clingo
 
-from fastapi.responses import HTMLResponse
-
 app = FastAPI()
-
 
 @app.get("/", response_class=HTMLResponse)
 def homepage():
@@ -54,6 +51,22 @@ def homepage():
 
         <h3>🔍 Solver Output</h3>
         <pre id="result">// Result will appear here</pre>
+
+        <details>
+          <summary style="cursor:pointer; font-weight: bold;">📖 How to read the output</summary>
+          <p>The output is a set of atoms (facts) representing a valid solution:</p>
+          <ul>
+            <li><code>move(robot1, 1, 2, 3)</code> – At time step 1, robot1 moves to position (2, 3).</li>
+            <li><code>pickup(robot1, shelf5)</code> – Robot picks up shelf5 at its location.</li>
+            <li><code>deliver(robot1, station2)</code> – Robot delivers shelf5 to station2.</li>
+            <li><code>shelf_at(shelf5, 2, 3)</code> – Shelf5 is initially at position (2, 3).</li>
+            <li><code>goal(station2, shelf5)</code> – Shelf5 needs to be delivered to station2.</li>
+          </ul>
+          <p>
+            These steps together form a valid plan. If you see <code>No answer sets found</code>, there is no valid solution
+            for that scenario.
+          </p>
+        </details>
 
         <script>
           async function solve(instance) {
