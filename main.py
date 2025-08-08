@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Query
-from fastapi.responses import PlainTextResponse, HTMLResponse
+from fastapi.responses import PlainTextResponse, HTMLResponse, JSONResponse
 import os
 import clingo
 
@@ -75,8 +75,9 @@ def homepage():
 
             try {
               const res = await fetch(`/solve?file=${instance}`);
-              const text = await res.text();
-              resultBox.textContent = text;
+              const json = await res.json();
+
+              resultBox.textContent = `// Raw Output:\n${json.raw}\n\n// Human-readable:\n${json.human}`;
             } catch (err) {
               resultBox.textContent = "Error: " + err;
             }
@@ -86,26 +87,59 @@ def homepage():
     </html>
     """
 
-@app.get("/solve", response_class=PlainTextResponse)
+@app.get("/solve", response_class=JSONResponse)
 def solve(file: str = Query(...), extra_args: str = Query("")):
     file_path = os.path.join("simpleInstances", f"{file}.asp")
 
     if not os.path.isfile(file_path):
-        return PlainTextResponse(f"File '{file}' not found.", status_code=404)
+        return JSONResponse({"error": f"File '{file}' not found."}, status_code=404)
 
     try:
         ctl = clingo.Control(arguments=extra_args.split() if extra_args else [])
         ctl.load(file_path)
         ctl.ground([("base", [])])
 
-        output = []
+        models = []
 
         def on_model(model):
-            output.append(str(model))
+            models.append(str(model))
 
         ctl.solve(on_model=on_model)
 
-        return "\n".join(output) if output else "No answer sets found."
+        if not models:
+            return {"raw": "No answer sets found.", "human": "❌ No valid solution found for this scenario."}
+
+        raw_output = models[0]
+        facts = raw_output.split()
+        human_lines = []
+
+        for fact in facts:
+            if "init(object(robot" in fact:
+                id = fact.split(",")[1]
+                x, y = fact.split("pair(")[1].rstrip("))").split(",")
+                human_lines.append(f"🤖 Robot {id} is located at ({x}, {y})")
+            elif "init(object(product" in fact and "on" in fact:
+                id = fact.split(",")[1]
+                x, y = fact.split("pair(")[1].rstrip("))").split(",")
+                human_lines.append(f"📦 Product {id} is located on shelf at ({x}, {y})")
+            elif "init(object(pickingStation" in fact:
+                id = fact.split(",")[1]
+                x, y = fact.split("pair(")[1].rstrip("))").split(",")
+                human_lines.append(f"🛒 Picking Station {id} is at ({x}, {y})")
+            elif "init(object(order" in fact and "pickingStation" in fact:
+                order_id = fact.split(",")[1]
+                station_id = fact.split(",")[2].split(")")[0]
+                human_lines.append(f"📬 Order {order_id} should be delivered to Picking Station {station_id}")
+            elif "init(object(order" in fact and "line" in fact:
+                order_id = fact.split(",")[1]
+                x, y = fact.split("pair(")[1].rstrip("))").split(",")
+                human_lines.append(f"📄 Order {order_id} includes product at ({x}, {y})")
+            # Add more rule parsing as needed
+
+        return {
+            "raw": raw_output,
+            "human": "\n".join(human_lines) if human_lines else "No interpretable facts found."
+        }
 
     except Exception as e:
-        return f"Error: {str(e)}"
+        return JSONResponse({"error": f"Internal error: {str(e)}"}, status_code=500)
