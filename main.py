@@ -13,15 +13,37 @@ def homepage():
     return """
     <html>
       <head>
-        <title>Clingo Solver</title>
+        <title>Clingo Solver – Warehouse Planner</title>
         <style>
           body { font-family: monospace; background: #121212; color: #e0e0e0; padding: 2rem; }
           button { margin: 0.5rem; padding: 0.5rem 1rem; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer; }
           pre { background: #1e1e1e; padding: 1rem; border-radius: 5px; margin-top: 1rem; overflow-x: auto; }
+          h1, h2, h3 { color: #f9d342; }
+          p { max-width: 800px; margin-bottom: 1rem; }
         </style>
       </head>
       <body>
-        <h1>Select an Instance to Solve</h1>
+        <h1>📦 Automated Warehouse Planner (Clingo + ASP)</h1>
+
+        <p>
+          This web interface allows you to solve instances of the <strong>Automated Warehouse Scenario</strong>,
+          a logistics-inspired planning problem modeled using <strong>Answer Set Programming (ASP)</strong>.
+        </p>
+
+        <p>
+          In this problem, autonomous robots must pick up product shelves and deliver them to picking stations
+          in a grid-based warehouse. The challenge is to find an efficient plan — a sequence of robot actions
+          (like <em>move</em>, <em>pickup</em>, <em>deliver</em>) — that fulfills all customer orders while minimizing
+          the total number of time steps (makespan).
+        </p>
+
+        <p>
+          Each instance is encoded as a <code>.asp</code> file (Answer Set Program). When you click a button below, the server
+          uses the <strong>Clingo</strong> solver to compute the optimal sequence of actions under hard constraints like:
+          no robot collisions, valid shelf handling, and correct delivery conditions.
+        </p>
+
+        <h2>Try a Scenario</h2>
         <div id="buttons">
           <button onclick="solve('inst1')">inst1</button>
           <button onclick="solve('inst2')">inst2</button>
@@ -29,7 +51,9 @@ def homepage():
           <button onclick="solve('inst4')">inst4</button>
           <button onclick="solve('inst5')">inst5</button>
         </div>
-        <pre id="result">// result will appear here</pre>
+
+        <h3>🔍 Solver Output</h3>
+        <pre id="result">// Result will appear here</pre>
 
         <script>
           async function solve(instance) {
@@ -48,6 +72,7 @@ def homepage():
       </body>
     </html>
     """
+
 @app.get("/solve", response_class=PlainTextResponse)
 def solve(file: str = Query(...), extra_args: str = Query("")):
     file_path = os.path.join("simpleInstances", f"{file}.asp")
