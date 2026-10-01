@@ -6,6 +6,10 @@
 
 # Automated Warehousing Scenario
 
+**[Run it](https://krr-project.onrender.com)** — pick any of the five instances
+and the server calls Clingo and returns the plan, both as raw answer-set atoms
+and decoded into readable moves.
+
 Robots move shelves around a grid to fill orders. They cannot pass through each
 other, cannot swap places in a single step, and cannot put a shelf down where one
 already is. Finding the shortest schedule that respects all of that is the
