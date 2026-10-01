@@ -10,6 +10,11 @@
 and the server calls Clingo and returns the plan, both as raw answer-set atoms
 and decoded into readable moves.
 
+[![Play the fifteen-second tour: five benchmark instances solved as logic constraints, with no collisions permitted](assets/brag-poster.jpg)](https://github.com/harsh-chandak/krr-project/blob/main/assets/brag.mp4)
+
+<sub>▶ Fifteen seconds on why nothing here searches for a plan. GitHub strips
+`<video>` from READMEs, so the poster above links to the player.</sub>
+
 Robots move shelves around a grid to fill orders. They cannot pass through each
 other, cannot swap places in a single step, and cannot put a shelf down where one
 already is. Finding the shortest schedule that respects all of that is the
