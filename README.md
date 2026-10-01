@@ -1,6 +1,33 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="assets/card-light.png">
+  <img src="assets/card-light.png" alt="Automated Warehouse. Encodes multi-robot warehouse fulfilment as logic constraints and solves for plans where robots never collide. Five benchmark instances, zero collisions permitted, the ASP Challenge 2019 domain. Built with Clingo, Answer Set Programming and Python.">
+</picture>
+
 # Automated Warehousing Scenario
 
-- The following is the implementation for the Automated Warehouse Scenario, details about which can be found in the [ASP challenge 2019](https://sites.google.com/view/aspcomp2019/problem-domains)
+Robots move shelves around a grid to fill orders. They cannot pass through each
+other, cannot swap places in a single step, and cannot put a shelf down where one
+already is. Finding the shortest schedule that respects all of that is the
+[ASP Challenge 2019](https://sites.google.com/view/aspcomp2019/problem-domains)
+warehouse domain.
+
+Nothing here searches for a plan. The whole solution is a set of rules saying
+what a legal warehouse state looks like and what a legal move is, plus a
+constraint that the order is filled by the end. Clingo is handed those rules and
+searches for an answer set satisfying all of them, within a horizon of `n=50`
+steps, and two `#minimize` directives then pick the plan with the fewest actions
+happening earliest.
+
+The work is in stating the constraints precisely enough that the only answer sets
+are correct plans. Collision avoidance is not an algorithm here but two rules:
+one forbidding two robots on the same node at the same time, and one forbidding
+a pair of robots from exchanging nodes between consecutive steps — without the
+second, two robots pass straight through each other and the plan still verifies.
+
+Solved for five benchmark instances, `inst1` through `inst5`, with the command
+lines and solver output for each recorded below.
+
 - The project is complete with no currently known anomalies
 - Please find the directory structure below
 
@@ -49,7 +76,7 @@ python script.py
 
 #### Instance 1
 ```clingo
-C:\Users\Anish\Desktop\Master\CSE579Warehouseing>python script.py
+$python script.py
 
  | code   |  Instance File    |
  |--------:|:----------------:|
@@ -84,7 +111,7 @@ CPU Time     : 0.375s
 
 #### Instance 2
 ```clingo
-C:\Users\Anish\Desktop\Master\CSE579Warehouseing>python script.py
+$python script.py
 
  | code   |  Instance File    |
  |--------:|:----------------:|
@@ -141,7 +168,7 @@ CPU Time     : 0.891s
 
 #### Instance 3
 ```clingo
-C:\Users\Anish\Desktop\Master\CSE579Warehouseing>python script.py
+$python script.py
 
  | code   |  Instance File    |
  |--------:|:----------------:|
@@ -206,7 +233,7 @@ CPU Time     : 0.281s
 
 #### Instance 4
 ```clingo
-C:\Users\Anish\Desktop\Master\CSE579Warehouseing>python script.py
+$python script.py
 
  | code   |  Instance File    |
  |--------:|:----------------:|
@@ -256,7 +283,7 @@ CPU Time     : 0.313s
 
 #### Instance 5
 ```clingo
-C:\Users\Anish\Desktop\Master\CSE579Warehouseing>python script.py
+$python script.py
 
  | code   |  Instance File    |
  |--------:|:----------------:|

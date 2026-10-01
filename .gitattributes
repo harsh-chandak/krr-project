@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# These are Answer Set Programming files for Clingo. Linguist maps the .asp
+# extension to Classic ASP, so the repository language badge read "Classic ASP"
+# — a Microsoft web framework from 1998 that appears nowhere in this project.
+# Linguist has no Clingo or ASP language; Prolog is the nearest logic-programming
+# neighbour and highlights this syntax correctly.
+*.asp linguist-language=Prolog
